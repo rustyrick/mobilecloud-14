@@ -15,6 +15,7 @@ import org.springframework.boot.context.embedded.tomcat.TomcatEmbeddedServletCon
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 import org.springframework.data.rest.webmvc.config.RepositoryRestMvcConfiguration;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
@@ -80,8 +81,8 @@ public class Application extends RepositoryRestMvcConfiguration {
 	//
     @Bean
     EmbeddedServletContainerCustomizer containerCustomizer(
-            @Value("${keystore.file:src/main/resources/private/keystore}") String keystoreFile/*,
-            @Value("${keystore.pass:changeit}") final String keystorePass*/) throws Exception {
+            @Value("${keystore.file:src/main/resources/private/keystore}") String keystoreFile,
+            @Value("${keystore.pass:changeit}") final String keystorePass) throws Exception {
 
 		// If you were going to reuse this class in another
 		// application, this is one of the key sections that you

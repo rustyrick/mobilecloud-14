@@ -16,16 +16,15 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
-import org.springframework.web.multipart.MultipartFile;
 
 @Controller
 public class VideoSvc implements VideoRepository {
 	
 	public static final String TITLE_PARAMETER = "title";
+	public static final String ID_PARAMETER = "id";
 	public static final String DURATION_PARAMETER = "duration";
 	public static final String TOKEN_PATH = "/oauth/token";
 	// The path where we expect the VideoSvc to live
@@ -39,6 +38,13 @@ public class VideoSvc implements VideoRepository {
 	
 	private static final AtomicLong currentId = new AtomicLong(0L);
 	
+	@RequestMapping(value=TOKEN_PATH, method=RequestMethod.POST)
+	public @ResponseBody void login(
+			@RequestBody Video v)
+	{
+		
+	}
+	
 	@RequestMapping(value=VIDEO_SVC_PATH, method=RequestMethod.GET)
 	public @ResponseBody Collection<Video> getVideoList()
 	{
@@ -51,60 +57,46 @@ public class VideoSvc implements VideoRepository {
 	{
 		checkAndSetId(v);
 		videos.put(v.getId(), v);
-		v.setDataUrl(getDataUrl(v.getId()));
+		v.setUrl(getDataUrl(v.getId()));
 		return v;
 	}
 	
-	@RequestMapping(value=VIDEO_DATA_PATH, method=RequestMethod.POST)
-	public @ResponseBody VideoStatus setVideoData(
-			@PathVariable(ID_PARAMETER) long id, 
-			@RequestParam(DATA_PARAMETER) MultipartFile videoData,
-			HttpServletResponse response)
-	{
-		try
-		{
-			Video v = videos.get(id);
-			VideoFileManager vfm = VideoFileManager.get();
-			if(v != null)
-			{
-				vfm.saveVideoData(v, videoData.getInputStream());
-			}
-			else
-			{
-				response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-			}
-		}
-		catch(IOException aEx)
-		{
-			response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-		}
-		return new VideoStatus(VideoState.READY);
-	}
-	
-	@RequestMapping(value=VIDEO_DATA_PATH, method=RequestMethod.GET)
-	public @ResponseBody void getData(
+	@RequestMapping(value=VIDEO_SVC_PATH + "/{id}/like", method=RequestMethod.POST)
+	public @ResponseBody void likeVideo(
 			@PathVariable(ID_PARAMETER) long id,
 			HttpServletResponse response)
 	{
-		try
-		{
-			Video v = videos.get(id);
-			VideoFileManager vfm = VideoFileManager.get();
-			if(v != null && vfm.hasVideoData(v))
-			{
-				vfm.copyVideoData(v, response.getOutputStream());
-			}
-			else
-			{
-				response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-			}
-		}
-		catch(IOException aEx)
-		{
-			response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-		}
+		
 	}
 	
+	@RequestMapping(value=VIDEO_SVC_PATH + "/{id}/unlike", method=RequestMethod.POST)
+	public @ResponseBody void unlikeVideo(
+			@PathVariable(ID_PARAMETER) long id,
+			HttpServletResponse response)
+	{
+		
+	}
+	
+	@RequestMapping(value=VIDEO_TITLE_SEARCH_PATH, method=RequestMethod.GET)
+	public @ResponseBody Collection<Video> findByTitle(
+			@PathVariable(TITLE_PARAMETER) String title)
+	{
+		return findByName(title);
+	}
+	
+	@RequestMapping(value=VIDEO_DURATION_SEARCH_PATH, method=RequestMethod.GET)
+	public @ResponseBody Collection<Video> findByDurationLessThan(
+			@PathVariable(DURATION_PARAMETER) long duration)
+	{
+		return findByDurationLessThan(duration);
+	}
+	
+	@RequestMapping(value=VIDEO_SVC_PATH + "/{id}/likedby", method=RequestMethod.GET)
+	public @ResponseBody Collection<String> getUsersWhoLikedVideo(
+			@PathVariable("id") long id)
+	{
+		return null;
+	}
 	
 	private void checkAndSetId(Video entity) {
         if(entity.getId() == 0){
@@ -194,12 +186,6 @@ public class VideoSvc implements VideoRepository {
 
 	@Override
 	public Collection<Video> findByName(String title) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Collection<Video> findByDurationLessThan(long maxduration) {
 		// TODO Auto-generated method stub
 		return null;
 	}
