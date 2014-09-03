@@ -2,6 +2,7 @@ package org.magnum.mobilecloud.video;
 
 import java.io.File;
 
+import org.magnum.mobilecloud.video.auth.OAuth2SecurityConfiguration;
 import org.apache.catalina.connector.Connector;
 import org.apache.coyote.http11.Http11NioProtocol;
 import org.springframework.beans.factory.annotation.Value;
@@ -31,6 +32,7 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 // Any class in this package that is annotated with @Controller is going to be
 // automatically discovered and connected to the DispatcherServlet.
 @ComponentScan
+@Import(OAuth2SecurityConfiguration.class)
 public class Application extends RepositoryRestMvcConfiguration {
 
 	// The app now requires that you pass the location of the keystore and
@@ -78,8 +80,8 @@ public class Application extends RepositoryRestMvcConfiguration {
 	//
     @Bean
     EmbeddedServletContainerCustomizer containerCustomizer(
-            @Value("${keystore.file:src/main/resources/private/keystore}") String keystoreFile,
-            @Value("${keystore.pass:changeit}") final String keystorePass) throws Exception {
+            @Value("${keystore.file:src/main/resources/private/keystore}") String keystoreFile/*,
+            @Value("${keystore.pass:changeit}") final String keystorePass*/) throws Exception {
 
 		// If you were going to reuse this class in another
 		// application, this is one of the key sections that you
@@ -112,5 +114,4 @@ public class Application extends RepositoryRestMvcConfiguration {
 			}
         };
     }
-	
 }
