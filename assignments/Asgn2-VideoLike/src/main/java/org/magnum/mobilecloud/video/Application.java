@@ -3,6 +3,7 @@ package org.magnum.mobilecloud.video;
 import java.io.File;
 
 import org.magnum.mobilecloud.video.auth.OAuth2SecurityConfiguration;
+import org.magnum.mobilecloud.video.repository.VideoRepository;
 import org.apache.catalina.connector.Connector;
 import org.apache.coyote.http11.Http11NioProtocol;
 import org.springframework.beans.factory.annotation.Value;
@@ -16,6 +17,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.data.rest.webmvc.config.RepositoryRestMvcConfiguration;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
@@ -24,6 +26,9 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 @EnableAutoConfiguration
 // Tell Spring to turn on WebMVC (e.g., it should enable the DispatcherServlet
 // so that requests can be routed to our Controllers)
+//Tell Spring to automatically create a JPA implementation of our
+//VideoRepository
+@EnableJpaRepositories(basePackageClasses = VideoRepository.class)
 @EnableWebMvc
 // Tell Spring that this object represents a Configuration for the
 // application
