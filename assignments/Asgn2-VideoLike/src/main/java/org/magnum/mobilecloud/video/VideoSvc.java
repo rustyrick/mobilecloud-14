@@ -1,6 +1,6 @@
 package org.magnum.mobilecloud.video;
 
-import java.io.IOException;
+import java.security.Principal;
 import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -11,6 +11,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.magnum.mobilecloud.video.repository.Video;
 import org.magnum.mobilecloud.video.repository.VideoRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -21,7 +22,7 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
 @Controller
-public class VideoSvc implements VideoRepository {
+public class VideoSvc {
 	
 	public static final String TITLE_PARAMETER = "title";
 	public static final String ID_PARAMETER = "id";
@@ -38,13 +39,9 @@ public class VideoSvc implements VideoRepository {
 	
 	private static final AtomicLong currentId = new AtomicLong(0L);
 	
-	@RequestMapping(value=TOKEN_PATH, method=RequestMethod.POST)
-	public @ResponseBody void login(
-			@RequestBody Video v)
-	{
+	@Autowired
+	private VideoRepository videoRepo;
 		
-	}
-	
 	@RequestMapping(value=VIDEO_SVC_PATH, method=RequestMethod.GET)
 	public @ResponseBody Collection<Video> getVideoList()
 	{
@@ -64,38 +61,72 @@ public class VideoSvc implements VideoRepository {
 	@RequestMapping(value=VIDEO_SVC_PATH + "/{id}/like", method=RequestMethod.POST)
 	public @ResponseBody void likeVideo(
 			@PathVariable(ID_PARAMETER) long id,
+			Principal p,
 			HttpServletResponse response)
 	{
-		
+		try
+		{
+			Video v = videoRepo.findOne(id);
+			if(!v.getLikers().contains(p.getName()))
+			{
+				v.likeVideo(p.getName());
+				videoRepo.save(v);
+			}
+			else
+			{
+				response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+			}
+		}
+		catch(IllegalArgumentException e)
+		{
+			response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+		}
 	}
 	
 	@RequestMapping(value=VIDEO_SVC_PATH + "/{id}/unlike", method=RequestMethod.POST)
 	public @ResponseBody void unlikeVideo(
 			@PathVariable(ID_PARAMETER) long id,
+			Principal p,
 			HttpServletResponse response)
 	{
-		
+		try
+		{
+			Video v = videoRepo.findOne(id);
+			if(v.getLikers().contains(p.getName()))
+			{
+				v.unlikeVideo(p.getName());
+				videoRepo.save(v);
+			}
+			else
+			{
+				response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+			}
+		}
+		catch(IllegalArgumentException e)
+		{
+			response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+		}
 	}
 	
 	@RequestMapping(value=VIDEO_TITLE_SEARCH_PATH, method=RequestMethod.GET)
 	public @ResponseBody Collection<Video> findByTitle(
 			@PathVariable(TITLE_PARAMETER) String title)
 	{
-		return findByName(title);
+		return videoRepo.findByName(title);
 	}
 	
 	@RequestMapping(value=VIDEO_DURATION_SEARCH_PATH, method=RequestMethod.GET)
 	public @ResponseBody Collection<Video> findByDurationLessThan(
 			@PathVariable(DURATION_PARAMETER) long duration)
 	{
-		return findByDurationLessThan(duration);
+		return videoRepo.findByDurationLessThan(duration);
 	}
 	
 	@RequestMapping(value=VIDEO_SVC_PATH + "/{id}/likedby", method=RequestMethod.GET)
 	public @ResponseBody Collection<String> getUsersWhoLikedVideo(
 			@PathVariable("id") long id)
 	{
-		return null;
+		return videoRepo.findOne(id).getLikers();
 	}
 	
 	private void checkAndSetId(Video entity) {
@@ -117,76 +148,4 @@ public class VideoSvc implements VideoRepository {
           + ((request.getServerPort() != 80) ? ":"+request.getServerPort() : "");
        return base;
     }
-
-	@Override
-	public <S extends Video> S save(S entity) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public <S extends Video> Iterable<S> save(Iterable<S> entities) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Video findOne(Long id) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public boolean exists(Long id) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public Iterable<Video> findAll() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Iterable<Video> findAll(Iterable<Long> ids) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public long count() {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	@Override
-	public void delete(Long id) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void delete(Video entity) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void delete(Iterable<? extends Video> entities) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void deleteAll() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public Collection<Video> findByName(String title) {
-		// TODO Auto-generated method stub
-		return null;
-	}
 }

@@ -98,6 +98,10 @@ public class Video {
 		likedBy.remove(user);
 	}
 	
+	public Collection<String> getLikers() {
+		return likedBy;
+	}
+	
 	/**
 	 * Two Videos will generate the same hashcode if they have exactly the same
 	 * values for their name, url, and duration.
