@@ -102,6 +102,19 @@ public class Video {
 		return likedBy;
 	}
 	
+	public void incrementLikeCount()
+	{
+		++likes;
+	}
+	
+	public void decrementLikeCount()
+	{
+		if(likes > 0)
+		{
+			--likes;
+		}
+	}
+	
 	/**
 	 * Two Videos will generate the same hashcode if they have exactly the same
 	 * values for their name, url, and duration.
