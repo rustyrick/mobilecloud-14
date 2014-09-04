@@ -127,8 +127,15 @@ public class VideoSvc {
 	
 	@RequestMapping(value=VIDEO_SVC_PATH + "/{id}/likedby", method=RequestMethod.GET)
 	public @ResponseBody Collection<String> getUsersWhoLikedVideo(
-			@PathVariable("id") long id)
+			@PathVariable("id") long id,
+			HttpServletResponse response)
 	{
+		Video v = videoRepo.findOne(id);
+		if(v == null)
+		{
+			response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+			return null;
+		}
 		return videoRepo.findOne(id).getLikers();
 	}
 }
